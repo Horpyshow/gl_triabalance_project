@@ -1,27 +1,6 @@
 <?php
-// Database configuration
-$dsn = "mysql:host=localhost;dbname=wealth_creation;charset=utf8mb4";
-$user = "root";
-$pass = "";
-
-try {
-    $db = new PDO($dsn, $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ]);
-} catch (Exception $e) {
-    die("Database connection failed: " . $e->getMessage());
-}
-
-
-function validate_table_name($name) {
-    return (bool) preg_match('/^[a-zA-Z0-9_]+$/', $name);
-}
-
-function fmt_money($v) {
-    return number_format((float)$v, 2);
-}
-
+include('includes/db.php');
+include('includes/helpers.php');
 // General Ledger: list all journal-like rows from account_general_transaction_new
 // Supports search (q), date_from, date_to, sort (column), order (asc|desc), page
 

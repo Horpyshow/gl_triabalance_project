@@ -36,7 +36,7 @@ if (!$acct) { echo "Account not found"; exit; }
 // We'll derive ledger entries by scanning account_general_transaction_new
 // and also any additional journal legs (jrn2..jrn7). For simplicity we collect rows where debit_account or credit_account matches.
 $perPage = 100;
-$page = max(1, (int)($_GET['page'] ?? 1));
+$page = max(1, isset($_GET['page']) ? (int)($_GET['page']) : 1);
 $offset = ($page-1)*$perPage;
 
 $sql = "SELECT id, date_of_payment, transaction_desc, debit_account, credit_account, debit_amount_jrn1, credit_amount_jrn1, receipt_no FROM account_general_transaction_new
@@ -50,7 +50,9 @@ $stmt->execute();
 $entries = $stmt->fetchAll();
 
 // compute running balance - need account type to know normal balance. We'll assume Asset/Expense = Debit normal; Liability/Equity/Income = Credit normal
-$normalDebit = in_array($acct['acct_type'] ?? 'Asset', ['Asset','Expense']);
+//$normalDebit = in_array(isset($acct['acct_type']) ? $acct['acct_type'] : 'Asset', ['Asset','Expense']);
+$acctType = isset($acct['acct_type']) ? $acct['acct_type'] : 'Asset';
+$normalDebit = in_array($acctType, ['Asset','Expense']);
 $balance = 0.0;
 $rowsOut = [];
 foreach ($entries as $e) {
@@ -67,7 +69,7 @@ foreach ($entries as $e) {
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script src="https://cdn.tailwindcss.com"></script><title>Ledger</title></head>
 <body class="bg-gray-100 p-6">
 <div class="max-w-6xl mx-auto bg-white p-4 rounded shadow">
-  <h1 class="text-xl font-bold">Ledger: <?=htmlspecialchars($acct['acct_alias'] ?? $acct['acct_code'])?></h1>
+  <h1 class="text-xl font-bold">Ledger: <?=htmlspecialchars(isset($acct['acct_alias']) ? $acct['acct_alias'] : $acct['acct_code'])?></h1>
   <p class="text-sm text-gray-600">Type: <?=htmlspecialchars($acct['acct_type'])?></p>
   <div class="overflow-x-auto mt-4">
     <table class="min-w-full text-sm">
